@@ -147,6 +147,7 @@ public:
 
     char getSymbol() const {
         // TODO: your implementation here
+        return symbol;
     }
 
     void setName(const string& name) {
