@@ -75,14 +75,15 @@ protected:
 public:
     Player(const string& name, char symbol) {
         // TODO: your implementation here
+        this->name = name;
+        this->symbol = symbol;
     }
 
     virtual void getMove(int& row, int& col) = 0;
-    // TODO:your implementation here
 
     string getName() const {
         // TODO: your implementation here
-        return "";
+        return name;
     }
 
     char getSymbol() const {
@@ -92,6 +93,7 @@ public:
 
     void setName(const string& name) {
         // TODO: your implementation here
+        this->name = name;
     }
 };
 
@@ -105,6 +107,10 @@ public:
 
     void getMove(int& row, int& col) override {
         // TODO: your implementation here
+        cout << name << " (" << symbol << "), enter your move (row 1-3 and column 1-3): ";
+        cin >> row >> col;
+        row--;
+        col--;
     }
 };
 
