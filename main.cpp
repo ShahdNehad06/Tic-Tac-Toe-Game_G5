@@ -19,41 +19,100 @@ private:
     int size;
 
 public:
-    Board(int size = 3){
+    Board(int s = 3){
         // TODO: your implementation here
+        size=s;
+        grid = vector<vector<char>>(size, vector<char>(size,' '));
     }
 
     void display() const {
         // TODO: your implementation here
-    }
-
-    bool makeMove(int row, int col, char symbol) {
-        // TODO: your implementation here
-        return false;
+        int num =1;
+        for (int i = 0; i < size; i++) {
+            cout<<" ";
+            for (int j = 0; j < size; j++) {
+                if (grid[i][j]==' ') {
+                    cout<<num;
+                }
+                else {
+                    cout<<grid[i][j];
+                }
+                if (j<size-1) {
+                    cout<<" | " ;
+                }
+                num++;
+            }
+            cout<<endl;
+            if (i<size-1) {
+                cout<<"----+----+----"<<endl;
+            }
+        }
+        cout<<endl;
     }
 
     bool isValidMove(int row, int col) const {
         // TODO: your implementation here
+        if (row<0||row>=size||col<0||col>=size||grid[row][col]==' ') {
+            return false;
+        }
+        return true;
+    }
+
+    bool makeMove(int row, int col, char symbol) {
+        // TODO: your implementation here
+        if (isValidMove(row,col)) {
+            grid[row][col] = symbol;
+            return true;
+        }
         return false;
     }
 
     bool checkWin(char symbol) const {
         // TODO: your implementation here
+        for (int i = 0; i < size; i++) {
+            if (grid[i][0]==symbol&&grid[i][1]==symbol&&grid[i][2]==symbol) {
+                return true;
+            }
+        }
+        for (int j=0; j<size; j++) {
+            if (grid[0][j]==symbol&&grid[1][j]==symbol&&grid[2][j]==symbol) {
+                return true;
+            }
+        }
+        if (grid[0][0]==symbol&&grid[1][1]==symbol&&grid[2][2]==symbol) {
+            return true;
+        }
+        if (grid[0][2]==symbol&&grid[1][1]==symbol&&grid[2][0]==symbol) {
+            return true;
+        }
+
         return false;
     }
 
     bool isFull() const {
         // TODO: your implementation here
-        return false;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (grid[i][j]==' ') {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     char getCell(int row, int col) const {
         // TODO: your implementation here
-        return ' ';
+        return grid [row][col];
     }
 
     void reset() {
         // TODO: your implementation here
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                grid[i][j]= ' ';
+            }
+        }
     }
 
     int getSize() const {
@@ -73,7 +132,7 @@ protected:
     char symbol;
 
 public:
-    Player(const string& name, char symbol) {
+    Player(const string& n, char s) {
         // TODO: your implementation here
         this->name = name;
         this->symbol = symbol;
@@ -88,7 +147,6 @@ public:
 
     char getSymbol() const {
         // TODO: your implementation here
-        return symbol;
     }
 
     void setName(const string& name) {
@@ -124,25 +182,12 @@ private:
 
 public:
     AIPlayer(const string& name, char symbol, Difficulty difficulty)
-        : Player(name, symbol), difficulty(difficulty) {}
-
-    void getMove(int& row, int& col) override {
+        : Player(name, symbol), difficulty(difficulty) {
         // TODO: your implementation here
-        // - If EASY => call getRandomMove
-        // - If HARD => call getBestMove
     }
 
     void setDifficulty(Difficulty newDifficulty) {
         // TODO: your implementation here
-    }
-
-    void getRandomMove(const Board& board, int& row, int& col) const {
-        // TODO: your implementation here
-    }
-
-    void getBestMove(Board& board, int& row, int& col) const {
-        // TODO: your implementation here
-        // - Use minimax algorithm
     }
 
     int evaluateBoard(const Board& board) const {
@@ -154,6 +199,24 @@ public:
         // TODO: your implementation here
         return 0;
     }
+
+    void getRandomMove(const Board& board, int& row, int& col) const {
+        // TODO: your implementation here
+    }
+
+
+    void getBestMove(Board& board, int& row, int& col) const {
+        // TODO: your implementation here
+        // - Use minimax algorithm
+    }
+
+    void getMove(int& row, int& col) override {
+        // TODO: your implementation here
+        // - If EASY => call getRandomMove
+        // - If HARD => call getBestMove
+    }
+
+
 };
 
 /* ----------- GAME CLASS ----------- */
@@ -168,6 +231,7 @@ private:
     Player* player1;
     Player* player2;
     Player* currentPlayer;
+    AIPlayer* aiPlayer;
 
 public:
     Game() {
