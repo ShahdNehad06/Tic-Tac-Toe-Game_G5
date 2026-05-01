@@ -8,7 +8,7 @@ using namespace std;
 
 /* ----Enum---- */
 // Represents AI difficulty levels
-enum Difficulty { EASY, HARD };
+enum Difficulty { EASY, HARD };//0,1
 
 /* ---------- BOARD CLASS ---------- */
 /* Responsibilities:
@@ -172,7 +172,7 @@ public:
         this->symbol = s;
     }
 
-    virtual void getMove(const Board& board, int& row, int& col) = 0;
+    virtual void getMove(Board &board, int &row, int &col) = 0;
 
     string getName() const {
         // TODO: your implementation here
@@ -198,7 +198,7 @@ public:
     HumanPlayer(const string& name, char symbol)
         : Player(name, symbol) {}
 
-    void getMove(const Board& board, int& row, int& col) override {
+    void getMove(Board &board, int &row, int &col) override {
         // TODO: your implementation here
         int n = board.getSize();
         int maxMove = n * n;
@@ -319,6 +319,7 @@ public:
             for (int j = 0; j < board.getSize(); j++) {
                 if (board.getCell(i, j) == ' ') {
                     emptyCells.push_back({i, j});
+
                 }
             }
         }
@@ -332,8 +333,6 @@ public:
 
     void getBestMove(Board& board, int& row, int& col) const {
         int bestValue = -1000;
-        row = -1;
-        col = -1;
 
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
@@ -342,7 +341,7 @@ public:
 
                     int moveValue = minimax(board, false);
 
-                    board.makeMove(i, j, ' ');
+                    board.makeMove(i, j, ' ');/////////////////////
 
                     if (moveValue > bestValue) {
                         bestValue = moveValue;
@@ -354,17 +353,15 @@ public:
         }
     }
 
-    void getMove(Board& board, int& row, int& col) {
-        if (difficulty == EASY)
+    void getMove(Board &board, int &row, int &col)override {
+        if (difficulty == 0)
             getRandomMove(board, row, col);
-        else
+        if (difficulty== 1)
             getBestMove(board, row, col);
-    }
-
-    void getMove(int& row, int& col) override {
         row = -1;
         col = -1;
     }
+
 };
 
 /* ----------- GAME CLASS ----------- */
@@ -382,49 +379,152 @@ private:
     AIPlayer* aiPlayer;
 
 public:
-    Game() {
-        // TODO: your implementation here
+    Game(){
+        srand(time(0));
+        player1 = nullptr;
+        player2 = nullptr;
+        currentPlayer = nullptr;
+        aiPlayer = nullptr;
     }
 
-    void start() {
-        // TODO: your implementation here
+    void start(){
+        bool running = true;
+        while(running){
+            showMenu();
+            int choice;
+            cin >> choice;
+
+            if(choice == 1){
+                setupPvP();
+            }else if(choice == 2){
+                setupPvC(EASY);
+            }else if(choice == 3){
+                setupPvC(HARD);
+            }else if(choice == 4){
+                cout << "Goodbye!" << endl;
+                running = false;
+                continue;
+            }else{
+                cout << "Invalid choice. Try again." << endl;
+                continue;
+            }
+
+            // Game looop
+            board.reset();
+            currentPlayer = player1;
+            bool gameOver = false;
+
+            while(!gameOver){
+                board.display();
+
+                if(currentPlayer == aiPlayer){
+                    handleAIMove(aiPlayer);
+                }else{
+                    handleHumanMove(currentPlayer);
+                }
+
+                if(checkGameEnd()){
+                    board.display();
+                    displayResult();
+                    gameOver = true;
+                }else{
+                    switchPlayer();
+                }
+            }
+
+            // Ask to play again
+            cout << "Play again? (y/n): ";
+            char again;
+            cin >> again;
+            if(again != 'y' && again != 'Y'){
+                running = false;
+            }
+
+            // Cleanup
+            delete player1;
+            delete player2;
+            player1 = nullptr;
+            player2 = nullptr;
+            currentPlayer = nullptr;
+            aiPlayer = nullptr;
+        }
     }
 
-    void showMenu() {
-        // TODO: your implementation here
+    void showMenu(){
+        cout << "TIC-TAC-TOE GAME" << endl;
+        cout << "================" << endl;
+        cout << "1. Player vs Player" << endl;
+        cout << "2. Player vs Computer (Easy)" << endl;
+        cout << "3. Player vs Computer (Hard)" << endl;
+        cout << "4. Exit" << endl;
+        cout << "Select game mode: ";
     }
 
-    void setupPvP() {
-        // TODO: your implementation here
+    void setupPvP(){
+        string name1, name2;
+        char s1,s2;
+        cout << "Enter Player 1 name and your symbol : ";
+        cin >> name1>>s1;
+        cout << "Enter Player 2 name and your symbol: ";
+        cin >> name2>>s2;
+
+        player1 = new HumanPlayer(name1, s1);
+        player2 = new HumanPlayer(name2, s2);
+        aiPlayer = nullptr;
     }
 
-    void setupPvC(Difficulty difficulty) {
-        // TODO: your implementation here
+    void setupPvC(Difficulty difficulty){
+        string name;
+        char sh;
+        char sc;
+        cout << "Enter your name and your symbol: ";
+        cin >> name>>sh;
+        if (sh=='X'||sh=='x') {
+            sc='O';
+        }
+        if (sh=='O'||sh=='o') {
+            sc='X';
+        }
+        player1 = new HumanPlayer(name, sh);
+        aiPlayer = new AIPlayer("Computer", sc, difficulty);
+        player2 = aiPlayer;
     }
 
-    void switchPlayer() {
-        // TODO: your implementation here
+    void switchPlayer(){
+        if (currentPlayer == player1) currentPlayer = player2;
+        else currentPlayer = player1;
     }
 
-    void handleHumanMove(Player* player) {
-        // TODO: your implementation here
+    void handleHumanMove(Player* player){
+        HumanPlayer* human = static_cast<HumanPlayer*>(player);
+        int row, col;
+        human->getMove(board, row, col);
+        board.makeMove(row, col, human->getSymbol());
     }
 
-    void handleAIMove(AIPlayer* aiPlayer) {
-        // TODO: your implementation here
+    void handleAIMove(AIPlayer* ai){
+        int row, col;
+        cout << ai->getName() << " (" << ai->getSymbol() << ") is making a move..." << endl;
+        ai->getMove(board, row, col);
+        board.makeMove(row, col, ai->getSymbol());
     }
 
-    bool checkGameEnd() {
-        // TODO: your implementation here
+    bool checkGameEnd(){
+        if(board.checkWin(currentPlayer->getSymbol())) return true;
+        if(board.isFull()) return true;
         return false;
     }
 
     void displayResult() const {
-        // TODO: your implementation here
+        if(board.checkWin(currentPlayer->getSymbol()))
+            cout << currentPlayer->getName() << " (" << currentPlayer->getSymbol() << ") wins!" << endl;
+        else
+            cout << "It's a draw!" << endl;
     }
 
-    void reset() {
-        // TODO: your implementation here
+    void reset(){
+        board.reset();
+        currentPlayer = player1;
     }
 };
 
