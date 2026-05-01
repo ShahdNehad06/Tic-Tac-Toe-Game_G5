@@ -47,7 +47,13 @@ public:
             }
             cout<<endl;
             if (i<size-1) {
-                cout<<"----+----+----"<<endl;
+                for (int k=0;k<size;k++) {
+                    cout<<"----";
+                    if (k<size-1) {
+                        cout<<"+";
+                    }
+                }
+                cout<<endl;
             }
         }
         cout<<endl;
@@ -55,7 +61,7 @@ public:
 
     bool isValidMove(int row, int col) const {
         // TODO: your implementation here
-        if (row<0||row>=size||col<0||col>=size||grid[row][col]==' ') {
+        if (row<0||row>=size||col<0||col>=size||grid[row][col]!=' ') {
             return false;
         }
         return true;
@@ -72,23 +78,48 @@ public:
 
     bool checkWin(char symbol) const {
         // TODO: your implementation here
+        int count=0;
         for (int i = 0; i < size; i++) {
-            if (grid[i][0]==symbol&&grid[i][1]==symbol&&grid[i][2]==symbol) {
+            count=0;
+            for (int j = 0; j < size; j++) {
+                if (grid[i][j]==symbol) {
+                    count++;
+                }
+            }
+            if (count==size) {
                 return true;
             }
         }
         for (int j=0; j<size; j++) {
-            if (grid[0][j]==symbol&&grid[1][j]==symbol&&grid[2][j]==symbol) {
+            count =0;
+            for (int i=0;i<size;i++) {
+                if (grid[i][j]==symbol) {
+                    count++;
+                }
+            }
+            if (count==size) {
                 return true;
             }
         }
-        if (grid[0][0]==symbol&&grid[1][1]==symbol&&grid[2][2]==symbol) {
-            return true;
+        count =0;
+        for (int i=0; i<size; i++) {
+            if (grid[i][i]==symbol) {
+                count++;
+            }
         }
-        if (grid[0][2]==symbol&&grid[1][1]==symbol&&grid[2][0]==symbol) {
+        if (count==size) {
             return true;
         }
 
+        count=0;
+        for (int i=0;i<size;i++) {
+            if (grid[i][size-i-1]==symbol) {
+                count++;
+            }
+        }
+        if (count==size) {
+            return true;
+        }
         return false;
     }
 
@@ -137,8 +168,8 @@ protected:
 public:
     Player(const string& n, char s) {
         // TODO: your implementation here
-        this->name = name;
-        this->symbol = symbol;
+        this->name = n;
+        this->symbol = s;
     }
 
     virtual void getMove(int& row, int& col) = 0;
