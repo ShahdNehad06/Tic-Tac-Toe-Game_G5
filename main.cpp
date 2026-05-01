@@ -172,7 +172,7 @@ public:
         this->symbol = s;
     }
 
-    virtual void getMove(int& row, int& col) = 0;
+    virtual void getMove(const Board& board, int& row, int& col) = 0;
 
     string getName() const {
         // TODO: your implementation here
@@ -198,12 +198,38 @@ public:
     HumanPlayer(const string& name, char symbol)
         : Player(name, symbol) {}
 
-    void getMove(int& row, int& col) override {
+    void getMove(const Board& board, int& row, int& col) override {
         // TODO: your implementation here
-        cout << name << " (" << symbol << "), enter your move (row 1-3 and column 1-3): ";
-        cin >> row >> col;
-        row--;
-        col--;
+        int n = board.getSize();
+        int maxMove = n * n;
+        int index;
+        bool valid = false;
+
+        while (!valid) {
+            cout << name << " (" << symbol << "), enter move (1-" << maxMove << "): ";
+
+            if (!(cin >> index)) {
+                cout << "Invalid input. Please enter a number." << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
+
+            if (index < 1 || index > maxMove) {
+                cout << "Out of bounds! Choose a number between 1 and " << maxMove << "." << endl;
+                continue;
+            }
+
+            index--;
+            row = index / n;
+            col = index % n;
+
+            if (board.isValidMove(row, col)) {
+                valid = true;
+            } else {
+                cout << "Invalid move! Spot taken. Try again." << endl;
+            }
+        }
     }
 };
 
