@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstdlib>
+#include <ctime>
+#include <limits>
 using namespace std;
 
 /* ----Enum---- */
@@ -184,40 +187,127 @@ private:
 public:
     AIPlayer(const string& name, char symbol, Difficulty difficulty)
         : Player(name, symbol), difficulty(difficulty) {
-        // TODO: your implementation here
     }
 
     void setDifficulty(Difficulty newDifficulty) {
-        // TODO: your implementation here
+        difficulty = newDifficulty;
     }
 
     int evaluateBoard(const Board& board) const {
-        // TODO: your implementation here
+        char aiSymbol = symbol;
+        char opponentSymbol = (symbol == 'X') ? 'O' : 'X';
+
+        if (board.checkWin(aiSymbol))
+            return 10;
+
+        if (board.checkWin(opponentSymbol))
+            return -10;
+
         return 0;
     }
 
     int minimax(Board& board, bool isMax) const {
-        // TODO: your implementation here
-        return 0;
+        int score = evaluateBoard(board);
+
+        if (score == 10 || score == -10)
+            return score;
+
+        if (board.isFull())
+            return 0;
+
+        char aiSymbol = symbol;
+        char opponentSymbol = (symbol == 'X') ? 'O' : 'X';
+
+        if (isMax) {
+            int best = -1000;
+
+            for (int i = 0; i < board.getSize(); i++) {
+                for (int j = 0; j < board.getSize(); j++) {
+                    if (board.getCell(i, j) == ' ') {
+                        board.makeMove(i, j, aiSymbol);
+                        int value = minimax(board, false);
+                        board.makeMove(i, j, ' ');
+
+                        if (value > best)
+                            best = value;
+                    }
+                }
+            }
+
+            return best;
+        } else {
+            int best = 1000;
+
+            for (int i = 0; i < board.getSize(); i++) {
+                for (int j = 0; j < board.getSize(); j++) {
+                    if (board.getCell(i, j) == ' ') {
+                        board.makeMove(i, j, opponentSymbol);
+                        int value = minimax(board, true);
+                        board.makeMove(i, j, ' ');
+
+                        if (value < best)
+                            best = value;
+                    }
+                }
+            }
+
+            return best;
+        }
     }
 
     void getRandomMove(const Board& board, int& row, int& col) const {
-        // TODO: your implementation here
+        vector<pair<int, int>> emptyCells;
+
+        for (int i = 0; i < board.getSize(); i++) {
+            for (int j = 0; j < board.getSize(); j++) {
+                if (board.getCell(i, j) == ' ') {
+                    emptyCells.push_back({i, j});
+                }
+            }
+        }
+
+        if (!emptyCells.empty()) {
+            int index = rand() % emptyCells.size();
+            row = emptyCells[index].first;
+            col = emptyCells[index].second;
+        }
     }
 
-
     void getBestMove(Board& board, int& row, int& col) const {
-        // TODO: your implementation here
-        // - Use minimax algorithm
+        int bestValue = -1000;
+        row = -1;
+        col = -1;
+
+        for (int i = 0; i < board.getSize(); i++) {
+            for (int j = 0; j < board.getSize(); j++) {
+                if (board.getCell(i, j) == ' ') {
+                    board.makeMove(i, j, symbol);
+
+                    int moveValue = minimax(board, false);
+
+                    board.makeMove(i, j, ' ');
+
+                    if (moveValue > bestValue) {
+                        bestValue = moveValue;
+                        row = i;
+                        col = j;
+                    }
+                }
+            }
+        }
+    }
+
+    void getMove(Board& board, int& row, int& col) {
+        if (difficulty == EASY)
+            getRandomMove(board, row, col);
+        else
+            getBestMove(board, row, col);
     }
 
     void getMove(int& row, int& col) override {
-        // TODO: your implementation here
-        // - If EASY => call getRandomMove
-        // - If HARD => call getBestMove
+        row = -1;
+        col = -1;
     }
-
-
 };
 
 /* ----------- GAME CLASS ----------- */
