@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
+#include <cctype>
 using namespace std;
 
 /* ----Enum---- */
@@ -70,7 +71,7 @@ public:
     bool makeMove(int row, int col, char symbol) {
         // TODO: your implementation here
         if (isValidMove(row,col)) {
-            grid[row][col] = symbol;
+            grid[row][col] = toupper(symbol);
             return true;
         }
         return false;
@@ -78,11 +79,12 @@ public:
 
     bool checkWin(char symbol) const {
         // TODO: your implementation here
+        symbol= toupper(symbol);
         int count=0;
         for (int i = 0; i < size; i++) {
             count=0;
             for (int j = 0; j < size; j++) {
-                if (grid[i][j]==symbol) {
+                if (toupper(grid[i][j])==symbol) {
                     count++;
                 }
             }
@@ -93,7 +95,7 @@ public:
         for (int j=0; j<size; j++) {
             count =0;
             for (int i=0;i<size;i++) {
-                if (grid[i][j]==symbol) {
+                if (toupper(grid[i][j])==symbol) {
                     count++;
                 }
             }
@@ -103,7 +105,7 @@ public:
         }
         count =0;
         for (int i=0; i<size; i++) {
-            if (grid[i][i]==symbol) {
+            if (toupper(grid[i][i])==symbol) {
                 count++;
             }
         }
@@ -113,7 +115,7 @@ public:
 
         count=0;
         for (int i=0;i<size;i++) {
-            if (grid[i][size-i-1]==symbol) {
+            if (toupper(grid[i][size-i-1])==symbol) {
                 count++;
             }
         }
@@ -169,7 +171,7 @@ public:
     Player(const string& n, char s) {
         // TODO: your implementation here
         this->name = n;
-        this->symbol = s;
+        this->symbol = toupper(s);
     }
 
     virtual void getMove(Board &board, int &row, int &col) = 0;
@@ -251,8 +253,8 @@ public:
     }
 
     int evaluateBoard(const Board& board) const {
-        char aiSymbol = symbol;
-        char opponentSymbol = (symbol == 'X') ? 'O' : 'X';
+        char aiSymbol = toupper(symbol);
+        char opponentSymbol = (aiSymbol == 'X') ? 'O' : 'X';
 
         if (board.checkWin(aiSymbol))
             return 10;
@@ -272,8 +274,8 @@ public:
         if (board.isFull())
             return 0;
 
-        char aiSymbol = symbol;
-        char opponentSymbol = (symbol == 'X') ? 'O' : 'X';
+        char aiSymbol = toupper(symbol);
+        char opponentSymbol = (aiSymbol == 'X') ? 'O' : 'X';
 
         if (isMax) {
             int best = -1000;
