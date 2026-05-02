@@ -263,7 +263,7 @@ public:
         return 0;
     }
 
-    int minimax(Board& board, bool isMax) const {
+    int minimax(Board board, bool isMax) const {
         int score = evaluateBoard(board);
 
         if (score == 10 || score == -10)
@@ -281,9 +281,10 @@ public:
             for (int i = 0; i < board.getSize(); i++) {
                 for (int j = 0; j < board.getSize(); j++) {
                     if (board.getCell(i, j) == ' ') {
-                        board.makeMove(i, j, aiSymbol);
-                        int value = minimax(board, false);
-                        board.makeMove(i, j, ' ');
+                        Board tempBoard = board;
+                        tempBoard.makeMove(i, j, aiSymbol);
+
+                        int value = minimax(tempBoard, false);
 
                         if (value > best)
                             best = value;
@@ -298,9 +299,10 @@ public:
             for (int i = 0; i < board.getSize(); i++) {
                 for (int j = 0; j < board.getSize(); j++) {
                     if (board.getCell(i, j) == ' ') {
-                        board.makeMove(i, j, opponentSymbol);
-                        int value = minimax(board, true);
-                        board.makeMove(i, j, ' ');
+                        Board tempBoard = board;
+                        tempBoard.makeMove(i, j, opponentSymbol);
+
+                        int value = minimax(tempBoard, true);
 
                         if (value < best)
                             best = value;
@@ -319,7 +321,6 @@ public:
             for (int j = 0; j < board.getSize(); j++) {
                 if (board.getCell(i, j) == ' ') {
                     emptyCells.push_back({i, j});
-
                 }
             }
         }
@@ -333,15 +334,16 @@ public:
 
     void getBestMove(Board& board, int& row, int& col) const {
         int bestValue = -1000;
+        row = -1;
+        col = -1;
 
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
                 if (board.getCell(i, j) == ' ') {
-                    board.makeMove(i, j, symbol);
+                    Board tempBoard = board;
+                    tempBoard.makeMove(i, j, symbol);
 
-                    int moveValue = minimax(board, false);
-
-                    board.makeMove(i, j, ' ');/////////////////////
+                    int moveValue = minimax(tempBoard, false);
 
                     if (moveValue > bestValue) {
                         bestValue = moveValue;
@@ -353,15 +355,13 @@ public:
         }
     }
 
-    void getMove(Board &board, int &row, int &col)override {
-        if (difficulty == 0)
+    void getMove(Board& board, int& row, int& col) override {
+        if (difficulty == EASY) {
             getRandomMove(board, row, col);
-        if (difficulty== 1)
+        } else {
             getBestMove(board, row, col);
-        row = -1;
-        col = -1;
+        }
     }
-
 };
 
 /* ----------- GAME CLASS ----------- */
